@@ -30,7 +30,7 @@
 }
 
 .loginButton {
-	all: unset;
+	outline: none;
 	background: transparent;
 	padding: 8px 32px;
 	border-radius: 24px;
@@ -58,4 +58,15 @@
 	padding: 4px 14px;
 	border-radius: 4px;
 	margin: 0 34px;
+}
+
+@media screen and (max-width: 580px) {
+	.logo {
+		font-size: 24px;
+	}
+
+	.link {
+		margin: 0 20px;
+		font-size: 14px;
+	}
 }
