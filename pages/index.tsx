@@ -23,6 +23,10 @@ export default function Home() {
 							seus estudos e tarefas
 						</h1>
 					</div>
+					<div className={styles.infoContent}>
+						<section className={styles.box}>+12 Posts</section>
+						<section className={styles.box}>+80 Comentários</section>
+					</div>
 				</main>
 			</div>
 		</>
