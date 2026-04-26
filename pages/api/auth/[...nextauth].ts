@@ -6,6 +6,13 @@ export const authOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID as string,
 			clientSecret: process.env.GOOGLE_CLIENTE_SECRET as string,
+			authorization: {
+				params: {
+					prompt: 'select_account',
+					acess_type: 'offline',
+					response_type: 'code',
+				},
+			},
 		}),
 	],
 	secret: process.env.JWT_SECRET,
