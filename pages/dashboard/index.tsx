@@ -6,8 +6,24 @@ import { Textarea } from '@/components/Textarea';
 import { FiShare2 } from 'react-icons/fi';
 import { FaTrash } from 'react-icons/fa';
 import { ChangeEvent, useState } from 'react';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/services/firebaseConnection';
+import toast from 'react-hot-toast';
 
-export default function Dashboard() {
+interface Task {
+	task: string;
+	public: boolean;
+	user: string;
+	createdAt: Date;
+}
+
+interface DashboardProps {
+	user: {
+		email: string;
+	};
+}
+
+export default function Dashboard({ user }: DashboardProps) {
 	const [input, setInput] = useState('');
 	const [publicTask, setPublicTask] = useState(false);
 
@@ -15,15 +31,29 @@ export default function Dashboard() {
 		setPublicTask(e.target.checked);
 	}
 
-	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+	async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
 		e.preventDefault();
 
 		if (input === '') {
 			return;
 		}
 
-		// Registrar tarefa
-		setInput('');
+		const data: Task = {
+			task: input,
+			public: publicTask,
+			user: user?.email,
+			createdAt: new Date(),
+		};
+
+		try {
+			await addDoc(collection(db, 'tasks'), data);
+			toast.success('Tarefa criada com sucesso');
+			setInput('');
+			setPublicTask(false);
+		} catch (error) {
+			console.log(error);
+			toast.error('Erro ao criar tarefa');
+		}
 	}
 
 	return (
@@ -95,6 +125,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 	}
 
 	return {
-		props: {},
+		props: {
+			user: {
+				email: session?.user?.email,
+			},
+		},
 	};
 };
