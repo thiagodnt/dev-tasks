@@ -33,28 +33,28 @@ export default function Dashboard({ user }: DashboardProps) {
 	const [tasks, setTasks] = useState<TaskProps[]>([]);
 
 	useEffect(() => {
-		async function loadTasks() {
-			const taskRef = collection(db, 'tasks');
-			const q = query(taskRef, orderBy('createdAt', 'desc'), where('user', '==', user?.email));
+		const taskRef = collection(db, 'tasks');
+		const q = query(taskRef, orderBy('createdAt', 'desc'), where('user', '==', user?.email));
 
-			onSnapshot(q, (snapshot) => {
-				let list = [] as TaskProps[];
+		const unsub = onSnapshot(q, (snapshot) => {
+			let list = [] as TaskProps[];
 
-				snapshot.forEach((doc) => {
-					list.push({
-						id: doc.id,
-						task: doc.data().task,
-						public: doc.data().public,
-						user: doc.data().user,
-						createdAt: doc.data().createdAt,
-					});
+			snapshot.forEach((doc) => {
+				list.push({
+					id: doc.id,
+					task: doc.data().task,
+					public: doc.data().public,
+					user: doc.data().user,
+					createdAt: doc.data().createdAt,
 				});
-
-				setTasks(list);
 			});
-		}
 
-		loadTasks();
+			setTasks(list);
+		});
+
+		return () => {
+			unsub();
+		};
 	}, [user?.email]);
 
 	function handlePublicTask(e: ChangeEvent<HTMLInputElement>) {
