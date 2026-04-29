@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './header.module.css';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { Loader } from '../Loader';
+import { Spinner } from '../Loader/spinner';
 
 export default function Header() {
 	const { data: session, status } = useSession();
@@ -23,7 +23,7 @@ export default function Header() {
 					)}
 				</nav>
 				{status === 'loading' ? (
-					<Loader />
+					<Spinner />
 				) : session ? (
 					<button className={styles.loginButton} onClick={() => signOut()}>
 						Olá, {session?.user?.name}

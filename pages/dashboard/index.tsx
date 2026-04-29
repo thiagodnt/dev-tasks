@@ -9,6 +9,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { addDoc, collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { db } from '@/services/firebaseConnection';
 import toast from 'react-hot-toast';
+import { Spinner } from '@/components/Loader/spinner';
 
 interface Task {
 	task: string;
@@ -31,6 +32,7 @@ export default function Dashboard({ user }: DashboardProps) {
 	const [input, setInput] = useState('');
 	const [publicTask, setPublicTask] = useState(false);
 	const [tasks, setTasks] = useState<TaskProps[]>([]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const taskRef = collection(db, 'tasks');
@@ -50,6 +52,7 @@ export default function Dashboard({ user }: DashboardProps) {
 			});
 
 			setTasks(list);
+			setLoading(false);
 		});
 
 		return () => {
@@ -120,6 +123,12 @@ export default function Dashboard({ user }: DashboardProps) {
 
 				<section className={styles.taskContainer}>
 					<h1>Minhas tarefas</h1>
+
+					{loading && (
+						<div className={styles.loaderWrapper}>
+							<Spinner size={32} color="#0f0f0f" />
+						</div>
+					)}
 
 					{tasks.map((task) => (
 						<article key={task.id} className={styles.task}>
