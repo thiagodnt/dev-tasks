@@ -89,6 +89,11 @@ export default function Dashboard({ user }: DashboardProps) {
 		}
 	}
 
+	async function handleShare(id: string) {
+		await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_URL}/task/${id}`);
+		toast.success('Copiado para a área de transferência');
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -135,7 +140,10 @@ export default function Dashboard({ user }: DashboardProps) {
 							{task.public && (
 								<div className={styles.tagContainer}>
 									<label className={styles.tag}>PÚBLICO</label>
-									<button className={styles.shareButton}>
+									<button
+										className={styles.shareButton}
+										onClick={() => handleShare(task.id)}
+									>
 										<FiShare2 size={22} color="#0f0f0f" />
 									</button>
 								</div>
