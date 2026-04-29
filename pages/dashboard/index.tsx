@@ -6,7 +6,16 @@ import { Textarea } from '@/components/Textarea';
 import { FiShare2 } from 'react-icons/fi';
 import { FaTrash } from 'react-icons/fa';
 import { ChangeEvent, useEffect, useState } from 'react';
-import { addDoc, collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import {
+	addDoc,
+	collection,
+	deleteDoc,
+	doc,
+	onSnapshot,
+	orderBy,
+	query,
+	where,
+} from 'firebase/firestore';
 import { db } from '@/services/firebaseConnection';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/Loader/spinner';
@@ -95,6 +104,17 @@ export default function Dashboard({ user }: DashboardProps) {
 		toast.success('Copiado para a área de transferência');
 	}
 
+	async function handleDeleteTask(id: string) {
+		const docRef = doc(db, 'tasks', id);
+		try {
+			await deleteDoc(docRef);
+			toast.success('Tarefa deletada com sucesso');
+		} catch (error) {
+			console.log(error);
+			toast.error('Ocorreu um erro inesperado');
+		}
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -158,7 +178,10 @@ export default function Dashboard({ user }: DashboardProps) {
 								) : (
 									<p>{task.task}</p>
 								)}
-								<button className={styles.trashButton}>
+								<button
+									className={styles.trashButton}
+									onClick={() => handleDeleteTask(task.id)}
+								>
 									<FaTrash size={24} color="#ea3140" />
 								</button>
 							</div>
