@@ -10,6 +10,7 @@ import { addDoc, collection, onSnapshot, orderBy, query, where } from 'firebase/
 import { db } from '@/services/firebaseConnection';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/Loader/spinner';
+import Link from 'next/link';
 
 interface Task {
 	task: string;
@@ -150,7 +151,13 @@ export default function Dashboard({ user }: DashboardProps) {
 							)}
 
 							<div className={styles.taskContent}>
-								<p>{task.task}</p>
+								{task.public ? (
+									<Link href={`/task/${task.id}`}>
+										<p>{task.task}</p>
+									</Link>
+								) : (
+									<p>{task.task}</p>
+								)}
 								<button className={styles.trashButton}>
 									<FaTrash size={24} color="#ea3140" />
 								</button>
