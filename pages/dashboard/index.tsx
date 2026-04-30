@@ -20,17 +20,8 @@ import { db } from '@/services/firebaseConnection';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/Loader/spinner';
 import Link from 'next/link';
-
-interface Task {
-	task: string;
-	public: boolean;
-	user: string;
-	createdAt: Date;
-}
-
-interface TaskProps extends Task {
-	id: string;
-}
+import { Task, TaskProps } from '@/types/task';
+import { Button } from '@/components/Button';
 
 interface DashboardProps {
 	user: {
@@ -140,9 +131,9 @@ export default function Dashboard({ user }: DashboardProps) {
 								/>
 								<label htmlFor="public-task-checkbox">Deixar tarefa pública</label>
 							</div>
-							<button type="submit" className={styles.button} disabled={input.length === 0}>
+							<Button type="submit" disabled={input.length === 0}>
 								Criar tarefa
-							</button>
+							</Button>
 						</form>
 					</div>
 				</section>
