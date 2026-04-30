@@ -131,7 +131,7 @@ export default function Dashboard({ user }: DashboardProps) {
 								/>
 								<label htmlFor="public-task-checkbox">Deixar tarefa pública</label>
 							</div>
-							<Button type="submit" disabled={input.length === 0}>
+							<Button type="submit" disabled={input === ''}>
 								Criar tarefa
 							</Button>
 						</form>
