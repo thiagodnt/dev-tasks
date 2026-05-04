@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Comment, CommentProps } from '@/types/comment';
 import toast from 'react-hot-toast';
+import { FaTrash } from 'react-icons/fa';
 
 interface TaskPageProps {
 	item: TaskProps;
@@ -88,6 +89,14 @@ export default function Task({ item, allComments }: TaskPageProps) {
 				{comments.length === 0 && <p>Nenhum comentário a ser exibido</p>}
 				{comments.map((item) => (
 					<article key={item.id} className={styles.comment}>
+						<div className={styles.commentHeader}>
+							<label className={styles.commentLabel}>{item.username}</label>
+							{item.user === session?.user?.email && (
+								<button className={styles.buttonTrash}>
+									<FaTrash size={18} color="#e92f3f" />
+								</button>
+							)}
+						</div>
 						<p>{item.comment}</p>
 					</article>
 				))}
