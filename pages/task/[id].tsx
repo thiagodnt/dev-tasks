@@ -1,7 +1,16 @@
 import Head from 'next/head';
 import styles from './task.module.css';
 import { GetServerSideProps } from 'next';
-import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import {
+	addDoc,
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	orderBy,
+	query,
+	where,
+} from 'firebase/firestore';
 import { db } from '@/services/firebaseConnection';
 import { TaskProps } from '@/types/task';
 import { Textarea } from '@/components/Textarea';
@@ -36,8 +45,9 @@ export default function Task({ item, allComments }: TaskPageProps) {
 		};
 
 		try {
-			await addDoc(collection(db, 'comments'), data);
+			const docRef = await addDoc(collection(db, 'comments'), data);
 			setInput('');
+			setComments((prev) => [{ ...data, id: docRef.id }, ...prev]);
 			toast.success('Comentário adicionado com sucesso');
 		} catch (error) {
 			console.log(error);
@@ -92,7 +102,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 	const docRef = doc(db, 'tasks', id);
 	const snapshotTask = await getDoc(docRef);
 
-	const q = query(collection(db, 'comments'), where('taskId', '==', id));
+	const q = query(
+		collection(db, 'comments'),
+		where('taskId', '==', id),
+		orderBy('createdAt', 'desc'),
+	);
 	const snapshotComments = await getDocs(q);
 
 	let comments: CommentProps[] = [];
