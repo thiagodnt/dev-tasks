@@ -1,23 +1,25 @@
 import Head from 'next/head';
 import styles from './task.module.css';
 import { GetServerSideProps } from 'next';
-import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/services/firebaseConnection';
 import { TaskProps } from '@/types/task';
 import { Textarea } from '@/components/Textarea';
 import { Button } from '@/components/Button';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Comment } from '@/types/comment';
+import { Comment, CommentProps } from '@/types/comment';
 import toast from 'react-hot-toast';
 
 interface TaskPageProps {
 	item: TaskProps;
+	allComments: CommentProps[];
 }
 
-export default function Task({ item }: TaskPageProps) {
-	const [input, setInput] = useState('');
+export default function Task({ item, allComments }: TaskPageProps) {
 	const { data: session } = useSession();
+	const [input, setInput] = useState('');
+	const [comments, setComments] = useState<CommentProps[]>(allComments || []);
 
 	async function handleSubmit(e: React.SyntheticEvent) {
 		e.preventDefault();
@@ -34,7 +36,7 @@ export default function Task({ item }: TaskPageProps) {
 		};
 
 		try {
-			const docRef = await addDoc(collection(db, 'comments'), data);
+			await addDoc(collection(db, 'comments'), data);
 			setInput('');
 			toast.success('Comentário adicionado com sucesso');
 		} catch (error) {
@@ -70,6 +72,16 @@ export default function Task({ item }: TaskPageProps) {
 					</Button>
 				</form>
 			</section>
+
+			<section className={styles.commentsContainer}>
+				<h2>Comentários</h2>
+				{comments.length === 0 && <p>Nenhum comentário a ser exibido</p>}
+				{comments.map((item) => (
+					<article key={item.id} className={styles.comment}>
+						<p>{item.comment}</p>
+					</article>
+				))}
+			</section>
 		</div>
 	);
 }
@@ -78,9 +90,24 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 	const id = params?.id as string;
 
 	const docRef = doc(db, 'tasks', id);
-	const snapshot = await getDoc(docRef);
+	const snapshotTask = await getDoc(docRef);
 
-	if (!snapshot.exists()) {
+	const q = query(collection(db, 'comments'), where('taskId', '==', id));
+	const snapshotComments = await getDocs(q);
+
+	let comments: CommentProps[] = [];
+	snapshotComments.forEach((doc) => {
+		comments.push({
+			id: doc.id,
+			comment: doc.data()?.comment,
+			user: doc.data()?.user,
+			username: doc.data()?.username,
+			taskId: doc.data()?.taskId,
+			createdAt: doc.data().createdAt?.toDate().toLocaleDateString('pt-BR'),
+		});
+	});
+
+	if (!snapshotTask.exists()) {
 		return {
 			redirect: {
 				destination: '/',
@@ -89,7 +116,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 		};
 	}
 
-	if (!snapshot.data()?.public) {
+	if (!snapshotTask.data()?.public) {
 		return {
 			redirect: {
 				destination: '/',
@@ -99,16 +126,17 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 	}
 
 	const task: TaskProps = {
-		id: snapshot.id,
-		task: snapshot.data()?.task,
-		public: snapshot.data()?.public,
-		user: snapshot.data()?.user,
-		createdAt: snapshot.data()?.createdAt?.toDate().toLocaleDateString('pt-BR'),
+		id: snapshotTask.id,
+		task: snapshotTask.data()?.task,
+		public: snapshotTask.data()?.public,
+		user: snapshotTask.data()?.user,
+		createdAt: snapshotTask.data()?.createdAt?.toDate().toLocaleDateString('pt-BR'),
 	};
 
 	return {
 		props: {
 			item: task,
+			allComments: comments,
 		},
 	};
 };

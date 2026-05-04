@@ -5,3 +5,7 @@ export interface Comment {
 	taskId: string;
 	createdAt: Date;
 }
+
+export interface CommentProps extends Comment {
+	id: string;
+}
