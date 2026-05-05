@@ -49,9 +49,10 @@
 }
 
 .comment {
-	border: 1.5px solid #909090;
+	border: 1.5px solid #ddd;
 	padding: 14px;
 	border-radius: 4px;
+	margin-bottom: 14px;
 }
 
 .commentHeader {
