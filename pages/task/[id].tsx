@@ -4,6 +4,7 @@ import { GetServerSideProps } from 'next';
 import {
 	addDoc,
 	collection,
+	deleteDoc,
 	doc,
 	getDoc,
 	getDocs,
@@ -56,6 +57,18 @@ export default function Task({ item, allComments }: TaskPageProps) {
 		}
 	}
 
+	async function handleDeleteComment(id: string) {
+		try {
+			const docRef = doc(db, 'comments', id);
+			await deleteDoc(docRef);
+			setComments(comments.filter((item) => item.id !== id));
+			toast.success('Comentário excluído com sucesso');
+		} catch (error) {
+			console.log(error);
+			toast.error('Erro ao excluir comentário');
+		}
+	}
+
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -92,7 +105,10 @@ export default function Task({ item, allComments }: TaskPageProps) {
 						<div className={styles.commentHeader}>
 							<label className={styles.commentLabel}>{item.username}</label>
 							{item.user === session?.user?.email && (
-								<button className={styles.buttonTrash}>
+								<button
+									className={styles.buttonTrash}
+									onClick={() => handleDeleteComment(item.id)}
+								>
 									<FaTrash size={18} color="#e92f3f" />
 								</button>
 							)}
